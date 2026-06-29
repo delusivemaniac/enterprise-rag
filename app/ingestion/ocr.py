@@ -1,3 +1,4 @@
 class OCRParser:
-    def parser(self,file_path):
-        print("OCR called.")
+
+    def parse(self, file_path):
+        raise NotImplementedError("OCR integration will be added later.")

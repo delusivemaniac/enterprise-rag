@@ -1,41 +1,18 @@
-import fitz
 from sentence_transformers import SentenceTransformer
+from app.config import EMBEDDING_MODEL
 
-# Load PDF
-pdf = fitz.open("data/frankenstein-mary-shelley.pdf")
 
-text = ""
+class Embedder:
 
-for page in pdf:
-    text += page.get_text()
+    def __init__(self):
+        self.model = SentenceTransformer(EMBEDDING_MODEL)
 
-# Chunking
-chunk_size = 1000
-chunk_overlap = 200
+        self.embedding_dimension = len(
+            self.model.encode(["test"])[0]
+        )
 
-chunks = []
+    def generate_embeddings(self, chunks):
+        return self.model.encode(chunks)
 
-start = 0
-
-while start < len(text):
-    end = start + chunk_size
-    chunks.append(text[start:end])
-    start += chunk_size - chunk_overlap
-
-print(f"Total chunks: {len(chunks)}")
-
-# Load embedding model
-model = SentenceTransformer(
-    "BAAI/bge-small-en-v1.5"
-)
-
-print("Embedding model loaded.")
-
-# Generate embeddings
-embeddings = model.encode(chunks)
-
-print("Embeddings generated.")
-
-print("Embedding shape:")
-print(len(embeddings))
-print(len(embeddings[0]))
+    def generate_query_embedding(self, query):
+        return self.model.encode(query)

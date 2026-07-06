@@ -1,59 +1,57 @@
-import fitz
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
-
-# Extract text
-pdf = fitz.open("data/frankenstein-mary-shelley.pdf")
-
-text = ""
-for page in pdf:
-    text += page.get_text()
-
-# Chunk text
-chunk_size = 1000
-chunk_overlap = 200
-
-chunks = []
-
-start = 0
-while start < len(text):
-    end = start + chunk_size
-    chunks.append(text[start:end])
-    start += chunk_size - chunk_overlap
-
-print(f"Chunks: {len(chunks)}")
-
-# Embeddings
-model = SentenceTransformer("BAAI/bge-small-en-v1.5")
-embeddings = model.encode(chunks)
-
-# Create Qdrant database
-client = QdrantClient(path="./qdrant_db")
-
-client.recreate_collection(
-    collection_name="frankenstein",
-    vectors_config=VectorParams(
-        size=384,
-        distance=Distance.COSINE
-    )
+from qdrant_client.models import (
+    Distance,
+    VectorParams,
+    PointStruct,
 )
 
-# Store vectors
-points = []
+from app.config import (
+    COLLECTION_NAME,
+    QDRANT_PATH,
+)
 
-for i, embedding in enumerate(embeddings):
-    points.append(
-        PointStruct(
-            id=i,
-            vector=embedding.tolist(),
-            payload={"text": chunks[i]}
+
+class VectorStore:
+
+    def __init__(self, embedding_dimension: int):
+
+        self.client = QdrantClient(path=QDRANT_PATH)
+
+        self.collection_name = COLLECTION_NAME
+
+        self.embedding_dimension = embedding_dimension
+
+        self._create_collection()
+
+    def _create_collection(self):
+
+        self.client.recreate_collection(
+            collection_name=self.collection_name,
+            vectors_config=VectorParams(
+                size=self.embedding_dimension,
+                distance=Distance.COSINE,
+            ),
         )
-    )
 
-client.upsert(
-    collection_name="frankenstein",
-    points=points
-)
+    def store(self, chunks, embeddings):
 
-print("Vectors stored successfully!")
+        points = []
+
+        for idx, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+
+            points.append(
+                PointStruct(
+                    id=idx,
+                    vector=embedding.tolist(),
+                    payload={
+                        "text": chunk
+                    }
+                )
+            )
+
+        self.client.upsert(
+            collection_name=self.collection_name,
+            points=points,
+        )
+
+        print(f"Stored {len(points)} vectors successfully.")

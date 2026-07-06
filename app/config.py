@@ -1,0 +1,11 @@
+EMBEDDING_MODEL = "BAAI/bge-m3"
+
+COLLECTION_NAME = "enterprise_rag"
+
+QDRANT_PATH = "./qdrant_db"
+
+DEFAULT_TOP_K = 10
+MAX_TOP_K = 20
+
+CHUNK_SIZE = 1000
+CHUNK_OVERLAP = 200

@@ -7,6 +7,7 @@ class Page:
     text: str
     images: List[Any] = field(default_factory=list)
     tables: List[Any] = field(default_factory=list)
+    needs_ocr: bool = False
 
 @dataclass
 class Document:

@@ -5,7 +5,7 @@ from app.ingestion.router import DocumentRouter
 
 router = DocumentRouter()
 
-document = router.process(r"C:\enterprise-rag\documents\JPR question.pdf")
+document = router.process(r"C:\Users\Admin\Documents\frankenstein-mary-shelley.pdf")
 
 print(document.file_name)
 print(document.file_type)

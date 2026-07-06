@@ -13,7 +13,7 @@ parser = PDFParser()
 
 print("3. Parser created")
 
-document = parser.parse(r"C:\enterprise-rag\documents\JPR question.pdf")
+document = parser.parse(r"C:\Users\Admin\Documents\frankenstein-mary-shelley.pdf")
 
 print("4. Parse completed")
 
@@ -24,4 +24,4 @@ print(f"Metadata: {document.metadata}")
 for page in document.pages:
     print("=" * 50) 
     print(f"Page {page.page_number}")
-    print(page.text[:500])   # First 500 characters
+    print(page.text)   # First 500 characters

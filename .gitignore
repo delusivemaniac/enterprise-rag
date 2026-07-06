@@ -4,3 +4,10 @@ __pycache__/
 .vscode/
 .env
 documents/
+
+__pycache__/
+*.pyc
+venv/
+.vscode/
+.env
+qdrant_db/

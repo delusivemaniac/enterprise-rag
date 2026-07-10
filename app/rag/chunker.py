@@ -1,29 +1,71 @@
+from dataclasses import dataclass
+
+from dataclasses import dataclass
+
 from app.ingestion.models import Document
+
+from llama_index.core import Document as LlamaIndexDocument
+from llama_index.core.node_parser import SemanticSplitterNodeParser
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+
+
+@dataclass
+class Chunk:
+    chunk_id: int
+    text: str
+    document_name: str
+    page_number: int
 
 
 class Chunker:
 
-    def __init__(self, chunk_size=1000, chunk_overlap=200):
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
+    def __init__(self):
+
+        print("Loading BGE-M3 embedding model...")
+
+        self.embed_model = HuggingFaceEmbedding(
+            model_name="BAAI/bge-m3"
+        )
+
+        print("Creating Semantic Splitter...")
+
+        self.splitter = SemanticSplitterNodeParser(
+            embed_model=self.embed_model,
+            breakpoint_percentile_threshold=95
+        )
 
     def chunk_document(self, document: Document):
 
-        text = ""
-
-        for page in document.pages:
-            text += page.text + "\n"
+        print("Generating semantic chunks...")
 
         chunks = []
+        chunk_id = 0
 
-        start = 0
+        for page in document.pages:
 
-        while start < len(text):
+            llama_document = LlamaIndexDocument(
+                text=page.text,
+                metadata={
+                    "page": page.page_number,
+                    "document": document.file_name
+                }
+            )
 
-            end = start + self.chunk_size
+            nodes = self.splitter.get_nodes_from_documents(
+                [llama_document]
+            )
 
-            chunks.append(text[start:end])
+            for node in nodes:
 
-            start += self.chunk_size - self.chunk_overlap
+                chunks.append(
+                    Chunk(
+                        chunk_id=chunk_id,
+                        text=node.text.strip(),
+                        document_name=document.file_name,
+                        page_number=page.page_number
+                    )
+                )
+
+                chunk_id += 1
 
         return chunks

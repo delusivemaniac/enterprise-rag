@@ -37,14 +37,17 @@ class VectorStore:
 
         points = []
 
-        for idx, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+        for chunk, embedding in zip(chunks, embeddings):
 
             points.append(
                 PointStruct(
-                    id=idx,
+                    id=chunk.chunk_id,
                     vector=embedding.tolist(),
                     payload={
-                        "text": chunk
+                        "text": chunk.text,
+                        "chunk_id": chunk.chunk_id,
+                        "document_name": chunk.document_name,
+                        "page_number": chunk.page_number,
                     }
                 )
             )

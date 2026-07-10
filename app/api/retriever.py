@@ -1,29 +1,38 @@
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 
-# Load embedding model
-model = SentenceTransformer(
-    "BAAI/bge-small-en-v1.5"
+from app.config import (
+    COLLECTION_NAME,
+    QDRANT_PATH,
 )
 
-# Connect to local Qdrant database
-client = QdrantClient(path="./qdrant_db")
+from app.rag.embedder import Embedder
 
-# User query
-query = input("Ask a question: ")
 
-# Convert query to embedding
-query_vector = model.encode(query)
+class Retriever:
 
-# Search
-results = client.query_points(
-    collection_name="frankenstein",
-    query=query_vector.tolist(),
-    limit=3
-).points
+    def __init__(self):
 
-# Display retrieved chunks
-for i, result in enumerate(results):
-    print(f"\nRESULT {i+1}")
-    print("=" * 50)
-    print(result.payload["text"])
+        self.client = QdrantClient(path=QDRANT_PATH)
+
+        self.embedder = Embedder()
+
+    def search(self, question: str, top_k: int):
+
+        query_embedding = self.embedder.generate_query_embedding(question)
+
+        results = self.client.query_points(
+            collection_name=COLLECTION_NAME,
+            query=query_embedding.tolist(),
+            limit=top_k,
+        ).points
+
+        return [
+            {
+                "text": point.payload["text"],
+                "score": point.score,
+                "chunk_id": point.payload.get("chunk_id"),
+                "document_name": point.payload.get("document_name"),
+                "page_number": point.payload.get("page_number"),
+            }
+            for point in results
+        ]

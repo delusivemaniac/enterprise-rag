@@ -3,7 +3,7 @@ from app.rag.chunker import Chunker
 from app.rag.embedder import Embedder
 
 router = DocumentRouter()
-document = router.process(r"C:\enterprise-rag\documents\JPR question.pdf")
+document = router.process(r"documents\JPR question.pdf")
 
 chunker = Chunker()
 chunks = chunker.chunk_document(document)

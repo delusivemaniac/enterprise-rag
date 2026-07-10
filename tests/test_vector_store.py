@@ -4,7 +4,7 @@ from app.rag.embedder import Embedder
 from app.rag.vector_store import VectorStore
 
 router = DocumentRouter()
-document = router.process(r"C:\enterprise-rag\documents\JPR question.pdf")
+document = router.process(r"documents\JPR question.pdf")
 
 chunker = Chunker()
 chunks = chunker.chunk_document(document)

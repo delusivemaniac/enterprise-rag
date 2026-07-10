@@ -11,7 +11,7 @@ class Page:
 
 @dataclass
 class Document:
-    file_name : str
-    file_type : str
-    pages : List[page]
-    metadata : Dict[str,Any]
+    file_name: str
+    file_type: str
+    pages: List[Page]
+    metadata: Dict[str, Any]

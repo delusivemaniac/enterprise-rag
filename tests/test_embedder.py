@@ -14,4 +14,4 @@ embeddings = embedder.generate_embeddings(chunks)
 
 print(f"Chunks: {len(chunks)}")
 print(f"Embeddings: {len(embeddings)}")
-print(f"Embedding Dimension: {embedder.embedding_dimension()}")
+print(f"Embedding Dimension: {embedder.embedding_dimension}")

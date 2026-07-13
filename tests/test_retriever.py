@@ -3,16 +3,15 @@ from app.config import DEFAULT_TOP_K
 
 retriever = Retriever()
 
-results = retriever.search(
-    question="What is this document about?",
-    top_k=DEFAULT_TOP_K,
+query_embedding = retriever.embedder.generate_query_embedding(
+    "What is this document about?"
 )
 
-print(f"Retrieved {len(results)} chunks\n")
+results = retriever.client.query_points(
+    collection_name="enterprise_rag",
+    query=query_embedding.tolist(),
+    limit=DEFAULT_TOP_K,
+).points
 
-for i, result in enumerate(results):
-    print("=" * 60)
-    print(f"Result {i+1}")
-    print(f"Score: {result['score']:.4f}")
-    print(f"Chunk ID: {result['chunk_id']}")
-    print(result["text"][:500])
+for point in results:
+    print(point.payload)
